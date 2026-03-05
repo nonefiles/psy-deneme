@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect } from 'react'
 import { useAuth } from '@/lib/auth/hooks'
 import { Sidebar } from '@/components/layout/sidebar'
 import { Header } from '@/components/layout/header'
@@ -17,6 +18,13 @@ export default function DashboardLayout({
     await signOut()
   }
 
+  // Use effect to handle redirects after component renders
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/auth/login')
+    }
+  }, [user, loading, router])
+
   // Show loading state while checking auth
   if (loading) {
     return (
@@ -29,9 +37,8 @@ export default function DashboardLayout({
     )
   }
 
-  // Redirect if no user (middleware should handle this, but double-check)
+  // Don't render anything if no user (redirect is in effect)
   if (!user) {
-    router.push('/auth/login')
     return null
   }
 
