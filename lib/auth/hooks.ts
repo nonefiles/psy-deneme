@@ -70,14 +70,16 @@ export function useSignIn() {
     setLoading(true)
     setError(null)
     try {
-      const { error: authError } = await supabase.auth.signInWithPassword({
+      const { data, error: authError } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
       if (authError) throw authError
+      return data
     } catch (err) {
-      setError(err instanceof Error ? err : new Error('Sign in failed'))
-      throw err
+      const errorObj = err instanceof Error ? err : new Error('Giriş başarısız')
+      setError(errorObj)
+      throw errorObj
     } finally {
       setLoading(false)
     }
@@ -99,19 +101,24 @@ export function useSignUp() {
     setLoading(true)
     setError(null)
     try {
-      const { error: authError } = await supabase.auth.signUp({
+      const { data, error: authError } = await supabase.auth.signUp({
         email,
         password,
         options: {
+          emailRedirectTo:
+            process.env.NEXT_PUBLIC_SUPABASE_REDIRECT_URL ||
+            `${typeof window !== 'undefined' ? window.location.origin : ''}/dashboard`,
           data: {
             full_name: fullName || '',
           },
         },
       })
       if (authError) throw authError
+      return data
     } catch (err) {
-      setError(err instanceof Error ? err : new Error('Sign up failed'))
-      throw err
+      const errorObj = err instanceof Error ? err : new Error('Kayıt başarısız')
+      setError(errorObj)
+      throw errorObj
     } finally {
       setLoading(false)
     }
